@@ -1,8 +1,36 @@
+
+#           Import 
 import pandas as pd
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from fuzzywuzzy import process
+
+
+
+
+
+'''
+Simple LNP Model For Tips Recommendation about illness and symptoms
+ 
+feacture : 
+    1-Convert humain text to usefull words 
+    2-Handel human error of writing usefull words
+    3-Matching the usefull words with dataset
+    4-Show tips if there is a good match
+    5-libaraies used : 
+                        pandas: A powerful data manipulation and analysis library providing data structures and handling structured data.
+                        nltk: A popular natural language processing (NLP) package for Python.
+                        fuzzywuzzy: A Python library for string matching and comparison.
+                        nltk.corpus.stopwords: A collection of common stop words in various languages, used to filter out non-essential words in text processing.
+                        nltk.tokenize.word_tokenize: A tokenizer that splits text into individual words and punctuation, facilitating text analysis.
+
+
+'''
+
+# Global variables 
+ThresholdValue = 60  # threshold for a good match
+
 
 # Load the stopwords
 nltk.download('stopwords')
@@ -12,8 +40,6 @@ nltk.download('punkt')
 symptoms_df = pd.read_csv('symptoms.csv')  # Ensure this file exists with 'Symptom' and 'Symptom_ID' columns
 tips_df = pd.read_csv('tips.csv')          # Ensure this file exists with 'Tip' and 'Symptom_ID' columns
 
-# Global variables 
-ThresholdValue = 60  # threshold for a good match
 
 
 
@@ -44,7 +70,7 @@ def get_tips(symptom):
 
 # Main function to handle user input
 def main():
-    user_input = " i feel like i have fiver "
+    user_input = "i feel like i have fiver "
     tokens = preprocess_text(user_input)
     symptom = ' '.join(tokens)
 
