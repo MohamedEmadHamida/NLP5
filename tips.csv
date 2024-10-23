@@ -1,12 +1,12 @@
-Symptom_ID,Tip
-1,Drink plenty of fluids and get rest.
-2,Take warm tea with honey and avoid cold air.
-3,Stay hydrated rest and avoid bright lights.
-4,Gargle with warm salt water and stay hydrated.
-5,Eat small bland meals and avoid spicy foods.
-6,Ensure you get enough sleep and manage stress.
-7,Sip ginger tea or eat dry crackers.
-8,Drink plenty of fluids and consume foods with electrolytes.
-9,Sit down breathe slowly and hydrate.
-10,Sit upright and try deep breathing exercises.
-11,Use a humidifier and stay hydrated.
+Symptom_ID,Tip1,Tip2,Tip3,Tip4
+1,Drink plenty of fluids and get rest.,Sleep will help you recover.,Avoid physical exertion.
+2,Take warm tea with honey and avoid cold air.,Use a vaporizer for relief.,Stay indoors in a warm environment.
+3,Stay hydrated and avoid bright lights.,Take frequent breaks.,Rest in a dark and quiet room.
+4,Gargle with warm salt water.,Drink herbal tea with honey.,Avoid cold drinks.
+5,Eat small bland meals.,Avoid spicy foods.,Stay hydrated.
+6,Ensure you get enough sleep.,Manage stress through meditation.,Take short naps.
+7,Sip ginger tea.,Eat dry crackers.,Avoid strong smells.
+8,Drink fluids with electrolytes.,Avoid caffeine and alcohol.,Replenish fluids with coconut water.
+9,Sit down and breathe slowly.,Stay hydrated with small sips of water.,Avoid standing for long periods.
+10,Sit upright.,Try deep breathing exercises.,Drink cold water slowly.
+11,Use a humidifier.,Inhale steam or take a warm shower.,Keep nasal passages moist with saline spray.

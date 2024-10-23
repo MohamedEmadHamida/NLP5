@@ -5,6 +5,8 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from fuzzywuzzy import process
+import random
+
 
 
 
@@ -27,10 +29,8 @@ feacture :
 
 
 '''
-
 # Global variables 
 ThresholdValue = 60  # threshold for a good match
-
 
 # Load the stopwords
 nltk.download('stopwords')
@@ -41,59 +41,58 @@ symptoms_df = pd.read_csv('symptoms.csv')  # Ensure this file exists with 'Sympt
 tips_df = pd.read_csv('tips.csv')          # Ensure this file exists with 'Tip' and 'Symptom_ID' columns
 
 
-
-
-
 # Preprocess the input text
 def preprocess_text(text):
     tokens = word_tokenize(text.lower())  # Tokenize and convert to lowercase
     tokens = [word for word in tokens if word.isalnum()]  # Keep only alphanumeric tokens
     return tokens
-
-# Get the closest matching symptom
 def get_closest_symptom(user_input):
     global ThresholdValue
     symptoms_list = symptoms_df['Symptom'].tolist()
     closest_match = process.extractOne(user_input, symptoms_list)
-    if closest_match and closest_match[1] >= ThresholdValue:  # threshold of 80 for a good match
-        print("\n",closest_match,"\n")
+    if closest_match and closest_match[1] >= ThresholdValue:
+        print("\n", closest_match, "\n")
         return closest_match[0]
     return None
 
-# Get tips based on symptom
+# Get random tips based on symptom
+# Net random tips
 def get_tips(symptom):
     symptom_id = symptoms_df.loc[symptoms_df['Symptom'] == symptom, 'Symptom_ID'].values
     if symptom_id.size > 0:
-        tips = tips_df[tips_df['Symptom_ID'] == symptom_id[0]]['Tip'].tolist()
-        return tips
-    return []
+        # Get tips from Tip1, Tip2, and Tip3 columns for the given Symptom_ID
+        tips = tips_df.loc[tips_df['Symptom_ID'] == symptom_id[0], ['Tip1', 'Tip2', 'Tip3']].values.flatten().tolist()
+        
+        # Filter out any None or NaN values
+        tips = [tip for tip in tips if pd.notna(tip)]  # Removes None or NaN tips
+        
+        if tips:
+            return random.choice(tips)  # Choose a random tip from available ones
+    return None
 
-# Main function to handle user input
-def main():
-    user_input = "i feel like i have fiver "
-    tokens = preprocess_text(user_input)
-    symptom = ' '.join(tokens)
-
-    closest_symptom = get_closest_symptom(symptom)
-    
+# Function to handle the closest symptom and tips
+def handle_closest_symptom(closest_symptom):
     if closest_symptom:
         print(f"Closest match found: {closest_symptom}")
-        tips = get_tips(closest_symptom)
-        if tips:
-            print("Here are some tips:")
-            for tip in tips:
-                print(f"- {tip}")
+        tip = get_tips(closest_symptom)
+        if tip:
+            print(f"Tip: {tip}")
         else:
             print("No tips found for this symptom.")
     else:
         print("No matching symptom found.")
 
+# Main function to handle user input
+def main():
+    user_input = "i feel like i have fiver"
+    tokens = preprocess_text(user_input)
+    symptom = ' '.join(tokens)
+
+    closest_symptom = get_closest_symptom(symptom)
+    handle_closest_symptom(closest_symptom)
+
 if __name__ == "__main__":
     main()
-
-
-
-
 '''
 1-Taskes add more than one tip for each symptom 
 2-Make random selection from tips when there is matching symptom
