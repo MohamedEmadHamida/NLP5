@@ -1,4 +1,3 @@
-
 #           Import 
 import pandas as pd
 import nltk
@@ -19,9 +18,9 @@ feacture :
     1-Convert humain text to usefull words 
     2-Handel human error of writing usefull words
     3-Matching the usefull words with dataset
-    4-Show tips if there is a good match
+    4-Show tips if there is a good match form random tips
     5-multitip return form singel user input 
-    5-libaraies used : 
+    libaraies used : 
                         pandas: A powerful data manipulation and analysis library providing data structures and handling structured data.
                         nltk: A popular natural language processing (NLP) package for Python.
                         fuzzywuzzy: A Python library for string matching and comparison.
@@ -45,7 +44,8 @@ tips_df = pd.read_csv('tips.csv')          # Ensure this file exists with 'Tip' 
 # Preprocess the input text
 def preprocess_text(text):
     tokens = word_tokenize(text.lower())  # Tokenize and convert to lowercase
-    tokens = [word for word in tokens if word.isalnum()]  # Keep only alphanumeric tokens
+    #tokens = [word for word in tokens if word.isalnum()]  # Keep only alphanumeric tokens
+    tokens = [word for word in tokens if word not in stopwords.words('english')]  # Remove stopwords
     return tokens
 
 #list if symptoms matches
@@ -55,32 +55,33 @@ def get_closest_symptom(user_input):
     symptoms_list = symptoms_df['Symptom'].tolist()
     closest_matches = process.extract(user_input, symptoms_list)
     
-    # Filter matches based on the threshold
-    matched_symptoms = [match[0] for match in closest_matches if match[1] >= ThresholdValue]
+    # Filter matches based on the threshold and retrieve their Symptom_IDs
+    matched_symptom_ids = [
+        symptoms_df.loc[symptoms_df['Symptom'] == match[0], 'Symptom_ID'].values[0]
+        for match in closest_matches if match[1] >= ThresholdValue
+    ]
     
-    if matched_symptoms:
-        print("\n", matched_symptoms, "\n")
-        return matched_symptoms
+    if matched_symptom_ids:
+        print("\n", matched_symptom_ids, "\n")
+        return matched_symptom_ids
+    
     return []
 
 # Get random tips based on symptom
 # Get random tips
 
-def get_tips(symptoms):
+def get_tips(symptom_ids):
     tips_for_symptoms = {}
     
-    for symptom in symptoms:
-        symptom_id = symptoms_df.loc[symptoms_df['Symptom'] == symptom, 'Symptom_ID'].values
+    for symptom_id in symptom_ids:
+        # Get tips from Tip1, Tip2, and Tip3 columns for the given Symptom_ID
+        tips = tips_df.loc[tips_df['Symptom_ID'] == symptom_id, ['Tip1', 'Tip2', 'Tip3']].values.flatten().tolist()
         
-        if symptom_id.size > 0:
-            # Get tips from Tip1, Tip2, and Tip3 columns for the given Symptom_ID
-            tips = tips_df.loc[tips_df['Symptom_ID'] == symptom_id[0], ['Tip1', 'Tip2', 'Tip3']].values.flatten().tolist()
-            
-            # Filter out any None or NaN values
-            tips = [tip for tip in tips if pd.notna(tip)]  # Removes None or NaN tips
-            
-            if tips:
-                tips_for_symptoms[symptom] = random.choice(tips)  # Choose a random tip for the symptom
+        # Filter out any None or NaN values
+        tips = [tip for tip in tips if pd.notna(tip)]  # Removes None or NaN tips
+        
+        if tips:
+            tips_for_symptoms[symptom_id] = random.choice(tips)  # Choose a random tip for the symptom ID
     
     return tips_for_symptoms
 
@@ -98,7 +99,7 @@ def handle_closest_symptom(closest_symptom):
 
 # Main function to handle user input
 def main():
-    user_input = "Stomach ache"
+    user_input = " I have Fiver"
     tokens = preprocess_text(user_input)
     symptom = ' '.join(tokens)
 
@@ -107,6 +108,13 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+    
+    
+    
+    
+    
 '''
 1-Taskes add more than one tip for each symptom  ✓
 2-Make random selection from tips when there is matching symptom ✓
@@ -117,4 +125,21 @@ if __name__ == "__main__":
 7-test results and make it more accurate
 8-test the preformans of the code
 9-super loop with one time load data 
+'''
+
+'''
+NLP (Natural Language Processing) models can perform a range of tasks, including:
+
+Text Classification - Categorize text by sentiment, topic, or intent.
+Named Entity Recognition (NER) – Identify entities like names, locations, or dates in text.
+Text Summarization – Condense long texts into shorter summaries.
+Language Translation – Translate text between languages.
+Speech Recognition – Convert spoken words into text.
+Chatbots and Conversational AI – Enable automated, natural-sounding interactions.
+Sentiment Analysis – Detect emotions and opinions in text.
+Text Generation – Generate coherent text based on input prompts.
+Spell and Grammar Correction – Correct grammatical and spelling errors in text.
+Intent Recognition – Identify user intent to trigger actions (useful for health or customer support apps, for instance).
+
+
 '''
