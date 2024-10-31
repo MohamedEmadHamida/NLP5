@@ -85,25 +85,22 @@ def get_closest_symptom(user_input):
 
 # Get random tips based on matched indices
 def get_tips(matched_indices):
-    tips_for_symptoms = {}
-    
     # Get all corresponding Symptom_IDs from the matched indices
-    symptom_ids = symptoms_df.loc[matched_indices, 'Symptom_ID'].tolist()
+    symptom_ids = symptoms_df.loc[matched_indices, 'Symptom_ID']
     
     # Get tips for the list of Symptom_IDs
-    for symptom_id in set(symptom_ids):  # Use set to avoid duplicates
-        # Get tips from Tip1, Tip2, and Tip3 columns for the given Symptom_ID
-        tips = tips_df.loc[tips_df['Symptom_ID'] == symptom_id, ['Tip1', 'Tip2', 'Tip3']].values.flatten().tolist()
-        
-        # Filter out any None or NaN values
-        tips = [tip for tip in tips if pd.notna(tip)]  # Removes None or NaN tips
-        
-        if tips:
-            tips_for_symptoms[symptom_id] = random.choice(tips)  # Choose a random tip for the symptom ID
-    
+    tips = tips_df[tips_df['Symptom_ID'].isin(symptom_ids)][['Symptom_ID', 'Tip1', 'Tip2', 'Tip3']]
+
+    # Melt the DataFrame to have a single column for tips
+    tips_melted = tips.melt(id_vars='Symptom_ID', value_vars=['Tip1', 'Tip2', 'Tip3'], value_name='Tip')
+
+    # Drop NaN values and remove duplicates
+    tips_melted = tips_melted.dropna(subset=['Tip']).drop_duplicates(subset=['Symptom_ID', 'Tip'])
+
+    # Randomly choose one tip for each symptom ID
+    tips_for_symptoms = tips_melted.groupby('Symptom_ID').apply(lambda x: random.choice(x['Tip'])).to_dict()
+
     return tips_for_symptoms
-
-
 
 
 
@@ -121,9 +118,14 @@ def handle_closest_symptom(closest_symptom):
     else:
         print("No matching symptom found.")
 
+
+
+
+
+
 # Main function to handle user input
 def main():
-    user_input = " I have Fever "
+    user_input = " I have Cough "
     tokens = preprocess_text(user_input)
     symptom = ' '.join(tokens)
 

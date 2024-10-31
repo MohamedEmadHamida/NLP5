@@ -1,5 +1,5 @@
-Symptom_ID,Symptom
-1,Fever
+Symptom_ID,Symptom,Symptom1,Symptom2,Symptom3,Symptom4
+1,Fever,hightemp,
 2,Cough
 3,Headache
 4,Sore throat
