@@ -7,7 +7,12 @@ from fuzzywuzzy import process
 import random
 
 
+DEBUG = False  # Set to False to disable all print statements
 
+
+def debug_print(message):
+    if DEBUG:
+        print('\n',message,'\n')
 
 
 
@@ -46,6 +51,7 @@ def preprocess_text(text):
     tokens = word_tokenize(text.lower())  # Tokenize and convert to lowercase
     #tokens = [word for word in tokens if word.isalnum()]  # Keep only alphanumeric tokens
     tokens = [word for word in tokens if word not in stopwords.words('english')]  # Remove stopwords
+    debug_print(tokens)
     return tokens
 
 #list if symptoms matches
@@ -55,25 +61,28 @@ def get_closest_symptom(user_input):
     symptoms_list = symptoms_df['Symptom'].tolist()
     closest_matches = process.extract(user_input, symptoms_list)
     
-    # Filter matches based on the threshold and retrieve their Symptom_IDs
-    matched_symptom_ids = [
-        symptoms_df.loc[symptoms_df['Symptom'] == match[0], 'Symptom_ID'].values[0]
+    # Filter matches based on the threshold and retrieve their DataFrame indices
+    matched_indices = [
+        symptoms_df.index[symptoms_df['Symptom'] == match[0]][0]  # Returns the first match if multiple exist
         for match in closest_matches if match[1] >= ThresholdValue
     ]
     
-    if matched_symptom_ids:
-        print("\n", matched_symptom_ids, "\n")
-        return matched_symptom_ids
+    if matched_indices:
+        debug_print(matched_indices)
+        return matched_indices
     
     return []
-
 # Get random tips based on symptom
-# Get random tips
 
-def get_tips(symptom_ids):
+# Get random tips based on matched indices
+def get_tips(matched_indices):
     tips_for_symptoms = {}
     
-    for symptom_id in symptom_ids:
+    # Get all corresponding Symptom_IDs from the matched indices
+    symptom_ids = symptoms_df.loc[matched_indices, 'Symptom_ID'].tolist()
+    
+    # Get tips for the list of Symptom_IDs
+    for symptom_id in set(symptom_ids):  # Use set to avoid duplicates
         # Get tips from Tip1, Tip2, and Tip3 columns for the given Symptom_ID
         tips = tips_df.loc[tips_df['Symptom_ID'] == symptom_id, ['Tip1', 'Tip2', 'Tip3']].values.flatten().tolist()
         
@@ -85,13 +94,14 @@ def get_tips(symptom_ids):
     
     return tips_for_symptoms
 
+
 # Function to handle the closest symptom and tips
 def handle_closest_symptom(closest_symptom):
     if closest_symptom:
-        print(f"Closest match found: {closest_symptom}")
+        debug_print(f"Closest match found: {closest_symptom}")
         tip = get_tips(closest_symptom)
         if tip:
-            print(f"Tip: {tip}")
+            print("\n\n\n",f"Tip: {tip}","\n\n\n")
         else:
             print("No tips found for this symptom.")
     else:
@@ -99,7 +109,7 @@ def handle_closest_symptom(closest_symptom):
 
 # Main function to handle user input
 def main():
-    user_input = " I have Fiver"
+    user_input = " I have Fever "
     tokens = preprocess_text(user_input)
     symptom = ' '.join(tokens)
 
