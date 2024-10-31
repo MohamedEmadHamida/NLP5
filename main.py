@@ -54,25 +54,42 @@ def preprocess_text(text):
     debug_print(tokens)
     return tokens
 
-#list if symptoms matches
+
+
+
+
+
+
+
+# Get closest symptom, including synonyms
 def get_closest_symptom(user_input):
     global ThresholdValue
     
+    # Create a list of symptoms and their synonyms
     symptoms_list = symptoms_df['Symptom'].tolist()
-    closest_matches = process.extract(user_input, symptoms_list)
+    synonyms_list = symptoms_df['Synonyms'].dropna().tolist()
     
-    # Filter matches based on the threshold and retrieve their DataFrame indices
+    # Combine symptoms with their synonyms
+    all_symptoms = symptoms_list + [syn for synonyms in synonyms_list for syn in synonyms.split(';')]
+    
+    closest_matches = process.extract(user_input, all_symptoms)
+    
+    # Filter matches based on the threshold and retrieve their original DataFrame indices
     matched_indices = [
         symptoms_df.index[symptoms_df['Symptom'] == match[0]][0]  # Returns the first match if multiple exist
         for match in closest_matches if match[1] >= ThresholdValue
     ]
     
     if matched_indices:
-        debug_print(matched_indices)
+        print("\n", matched_indices, "\n")
         return matched_indices
     
     return []
-# Get random tips based on symptom
+
+
+
+
+
 
 # Get random tips based on matched indices
 def get_tips(matched_indices):
